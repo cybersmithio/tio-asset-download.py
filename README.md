@@ -9,6 +9,6 @@ TIOACCESSKEY="******************"; export TIOACCESSKEY
 
 TIOSECRETKEY="******************"; export TIOSECRETKEY
 
-./tiocs-asset-download.py 
+./tio-asset-download.py 
 
 This will produce a file called tiocs-asset-download.csv
