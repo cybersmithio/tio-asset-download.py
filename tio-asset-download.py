@@ -6,50 +6,53 @@
 # Example usage with environment variables:
 # TIOACCESSKEY="********************"; export TIOACCESSKEY
 # TIOSECRETKEY="********************"; export TIOSECRETKEY
-# TIOREPOSITORY="reponame"; export TIOREPOSITORY
-# ./tio-asset-download.py 
+# ./tio-asset-download.py
 #
-
-
+# This script requires the Tenable.io Python SDK to be installed.
+# If this is not already done, then run pip install tenable_io
+#
 
 import json
 import os
 import csv
 import sys
-from tenable_io.api.models import Folder
 from tenable_io.client import TenableIOClient
-from tenable_io.exceptions import TenableIOApiException
-from tenable_io.api.models import AssetList, AssetInfo, VulnerabilityList, VulnerabilityOutputList
 
-def GenerateReport(accesskey,secretkey,filename):
+def GenerateAssetCSV(accesskey,secretkey,filename):
+	#Create the connection to Tenable.io
 	client = TenableIOClient(access_key=accesskey, secret_key=secretkey)
 
-	#Gather the list of repositories
+	#Gather the list of assets
 	resp=client.get("assets")
 	respdata=json.loads(resp.text)
 
+	#Open the file that will become a CSV
 	with open(filename,"w") as csvfile:
-        	fieldnames=['id','has_agent','last_seen','sources','ipv4','ipv6','fqdn','netbios_name','operating_system','mac_address']
-        	writer=csv.DictWriter(csvfile,fieldnames=fieldnames)
-       		writer.writeheader()
-		for i in respdata['assets']:
-			sys.stdout.write(".")
-			sys.stdout.flush()
-			resp=client.get("assets/"+str(i['id']))
-			extrarespdata=json.loads(resp.text)
-			
-			rowdict={'id':i['id'], 'has_agent': i['has_agent'], 'last_seen': i['last_seen'],'sources': i['sources'], 'ipv4': i['ipv4'], 'ipv6': i['ipv6'], 'fqdn': i['fqdn'], 'netbios_name': i['netbios_name'], 'operating_system': i['operating_system'], 'mac_address': extrarespdata['mac_address']}
-			writer.writerow(rowdict)
-		print("")
+		#Create the header of the CSV file
+		fieldnames=['id','has_agent','last_seen','sources','ipv4','ipv6','fqdn','netbios_name','operating_system']
 
+		#Create a CSV writer and associate with the file handle
+		writer=csv.DictWriter(csvfile,fieldnames=fieldnames)
+		#Write the CSV headers
+		writer.writeheader()
+
+		#Loop through all the downloaded assets and write them into the CSV file
+		for i in respdata['assets']:
+			rowdict={'id':i['id'], 'has_agent': i['has_agent'], 'last_seen': i['last_seen'],'sources': i['sources'], 'ipv4': i['ipv4'], 'ipv6': i['ipv6'], 'fqdn': i['fqdn'], 'netbios_name': i['netbios_name'], 'operating_system': i['operating_system']}
+			writer.writerow(rowdict)
+
+	#Close the file
 	csvfile.close()
-	return
+	return(True)
 
 ################################################################
 # Start of program 
 ################################################################
-#Set debugging on or off
-DEBUG=True
+
+# First we need the Tenable.io Access Key and Secret key.
+# This program will check the environment variables first,
+# the command line second, and finally it will prompt the user
+# for the keys if it cannot find them elsewhere.
 
 #Pull as much information from the environment variables
 # as possible, and where missing then initialize the variables.
@@ -63,8 +66,7 @@ if os.getenv('TIOSECRETKEY') is None:
 else:
         secretkey=os.getenv('TIOSECRETKEY')
 
-if DEBUG:
-        print "Connecting to cloud.tenable.com with access key",accesskey,"to report on assets"
+print "Connecting to cloud.tenable.com with access key",accesskey,"to report on assets"
 
 #Pull information from command line.  If nothing there,
 # and there was nothing in the environment variables, then ask user.
@@ -80,6 +82,7 @@ else:
 	if secretkey == "":
         	secretkey=raw_input("Secret key:")
 
-GenerateReport(accesskey,secretkey,"tio-asset-download.csv")
+#Download the asset list into a CSV
+GenerateAssetCSV(accesskey,secretkey,"tio-asset-download.csv")
 
 
