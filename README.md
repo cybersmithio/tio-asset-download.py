@@ -1,3 +1,5 @@
+![Logo] (https://github.com/cybersmithio/tio-asset-download.py/blob/master/TenableAPI.png)
+
 # Summary
 A Python script to download the assets from Tenable.io and store in a CSV format.
 
