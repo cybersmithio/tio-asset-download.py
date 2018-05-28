@@ -12,11 +12,8 @@ This script requires the Tenable.io Python SDK from https://github.com/tenable/T
 A quick way to install the Tenable.io Python SDK is to run this command:
 
 
-pip install tenable_io
+    pip install tenable_io
 
-
-
-This script needs the Tenable.io SDK, which can be found at https://github.com/tenable/Tenable.io-SDK-for-Python/tree/master/tenable_io
 
 # Linux/Unix Example With Environment Variables
 TIOACCESSKEY="******************"; export TIOACCESSKEY
